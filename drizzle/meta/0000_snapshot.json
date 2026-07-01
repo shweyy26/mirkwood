@@ -1,5 +1,5 @@
 {
-  "id": "1f68d748-1c77-47a2-aa3f-2f244c3aff2e",
+  "id": "4939d8dd-b8a2-4574-b954-58fc3394bd23",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -14,6 +14,12 @@
           "primaryKey": true,
           "notNull": true,
           "default": "gen_random_uuid()"
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
         },
         "title": {
           "name": "title",
@@ -41,6 +47,12 @@
         },
         "cover_url": {
           "name": "cover_url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "isbn": {
+          "name": "isbn",
           "type": "text",
           "primaryKey": false,
           "notNull": false
@@ -205,6 +217,12 @@
           "notNull": true,
           "default": "gen_random_uuid()"
         },
+        "user_id": {
+          "name": "user_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
         "name": {
           "name": "name",
           "type": "text",
@@ -222,15 +240,7 @@
       "indexes": {},
       "foreignKeys": {},
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {
-        "series_name_unique": {
-          "name": "series_name_unique",
-          "nullsNotDistinct": false,
-          "columns": [
-            "name"
-          ]
-        }
-      },
+      "uniqueConstraints": {},
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false
@@ -239,12 +249,11 @@
       "name": "settings",
       "schema": "",
       "columns": {
-        "id": {
-          "name": "id",
+        "user_id": {
+          "name": "user_id",
           "type": "text",
           "primaryKey": true,
-          "notNull": true,
-          "default": "'singleton'"
+          "notNull": true
         },
         "pages_per_hour": {
           "name": "pages_per_hour",

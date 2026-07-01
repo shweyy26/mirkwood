@@ -1,11 +1,13 @@
 CREATE TYPE "public"."read_status" AS ENUM('tbr', 'reading', 'finished', 'dnf');--> statement-breakpoint
 CREATE TABLE "books" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"user_id" text NOT NULL,
 	"title" text NOT NULL,
 	"author" text NOT NULL,
 	"total_pages" integer,
 	"genre" text,
 	"cover_url" text,
+	"isbn" text,
 	"series_id" uuid,
 	"series_index" real,
 	"created_at" timestamp DEFAULT now() NOT NULL,
@@ -28,13 +30,13 @@ CREATE TABLE "read_entries" (
 --> statement-breakpoint
 CREATE TABLE "series" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"user_id" text NOT NULL,
 	"name" text NOT NULL,
-	"created_at" timestamp DEFAULT now() NOT NULL,
-	CONSTRAINT "series_name_unique" UNIQUE("name")
+	"created_at" timestamp DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE "settings" (
-	"id" text PRIMARY KEY DEFAULT 'singleton' NOT NULL,
+	"user_id" text PRIMARY KEY NOT NULL,
 	"pages_per_hour" integer DEFAULT 40 NOT NULL,
 	"weekday_hours" real DEFAULT 1 NOT NULL,
 	"weekend_hours" real DEFAULT 3 NOT NULL,

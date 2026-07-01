@@ -1,1 +1,0 @@
-ALTER TABLE "series" DROP CONSTRAINT "series_name_unique";

@@ -75,3 +75,14 @@ device that opens the URL sees the same library — that's what makes it sync.
 - `series` — just a name; books reference it optionally.
 - `settings` — a single row: reading speed (pages/hour), weekday/weekend
   reading hours, and the yearly goal. Drives the pace and goal calculators.
+
+### Multi-user readiness (not active yet)
+
+There's no login. `books`, `series`, and `settings` all carry a `user_id`
+column, but every row is currently stamped with a single fixed id
+(`src/lib/user.ts`). This means adding real accounts later is mostly a matter
+of replacing `getCurrentUserId()` with a real session lookup — the schema and
+every query/action already scope by user id.
+
+`books.isbn` is also there but unused for now, to leave room for importing an
+existing library from a Goodreads/StoryGraph CSV export later.

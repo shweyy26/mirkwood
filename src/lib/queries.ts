@@ -1,17 +1,26 @@
 import { db } from "@/db";
 import { books, readEntries, series, settings } from "@/db/schema";
-import { asc, desc, eq } from "drizzle-orm";
+import { and, asc, desc, eq, inArray } from "drizzle-orm";
+import { getCurrentUserId } from "@/lib/user";
+
+/** Books belonging to the current user - used to scope read-entry queries by user. */
+function ownBookIds() {
+  const userId = getCurrentUserId();
+  return db.select({ id: books.id }).from(books).where(eq(books.userId, userId));
+}
 
 export async function getSettings() {
-  const rows = await db.select().from(settings).where(eq(settings.id, "singleton"));
+  const userId = getCurrentUserId();
+  const rows = await db.select().from(settings).where(eq(settings.userId, userId));
   if (rows[0]) return rows[0];
-  await db.insert(settings).values({ id: "singleton" }).onConflictDoNothing();
-  const [row] = await db.select().from(settings).where(eq(settings.id, "singleton"));
+  await db.insert(settings).values({ userId }).onConflictDoNothing();
+  const [row] = await db.select().from(settings).where(eq(settings.userId, userId));
   return row;
 }
 
 export async function getAllBooksWithEntries() {
   return db.query.books.findMany({
+    where: eq(books.userId, getCurrentUserId()),
     with: { readEntries: { orderBy: [desc(readEntries.createdAt)] }, series: true },
     orderBy: [desc(books.createdAt)],
   });
@@ -19,14 +28,14 @@ export async function getAllBooksWithEntries() {
 
 export async function getBookWithEntries(id: string) {
   return db.query.books.findFirst({
-    where: eq(books.id, id),
+    where: and(eq(books.id, id), eq(books.userId, getCurrentUserId())),
     with: { readEntries: { orderBy: [desc(readEntries.createdAt)] }, series: true },
   });
 }
 
 export async function getCurrentlyReading() {
   return db.query.readEntries.findMany({
-    where: eq(readEntries.status, "reading"),
+    where: and(eq(readEntries.status, "reading"), inArray(readEntries.bookId, ownBookIds())),
     with: { book: true },
     orderBy: [asc(readEntries.startDate)],
   });
@@ -34,7 +43,7 @@ export async function getCurrentlyReading() {
 
 export async function getTbrEntries() {
   return db.query.readEntries.findMany({
-    where: eq(readEntries.status, "tbr"),
+    where: and(eq(readEntries.status, "tbr"), inArray(readEntries.bookId, ownBookIds())),
     with: { book: true },
     orderBy: [desc(readEntries.createdAt)],
   });
@@ -42,7 +51,7 @@ export async function getTbrEntries() {
 
 export async function getFinishedEntries() {
   return db.query.readEntries.findMany({
-    where: eq(readEntries.status, "finished"),
+    where: and(eq(readEntries.status, "finished"), inArray(readEntries.bookId, ownBookIds())),
     with: { book: true },
     orderBy: [desc(readEntries.endDate)],
   });
@@ -50,6 +59,7 @@ export async function getFinishedEntries() {
 
 export async function getAllSeriesWithBooks() {
   return db.query.series.findMany({
+    where: eq(series.userId, getCurrentUserId()),
     with: {
       books: {
         with: { readEntries: true },
@@ -61,12 +71,16 @@ export async function getAllSeriesWithBooks() {
 }
 
 export async function getSeriesList() {
-  return db.select().from(series).orderBy(asc(series.name));
+  return db
+    .select()
+    .from(series)
+    .where(eq(series.userId, getCurrentUserId()))
+    .orderBy(asc(series.name));
 }
 
 export async function getReadEntry(id: string) {
   return db.query.readEntries.findFirst({
-    where: eq(readEntries.id, id),
+    where: and(eq(readEntries.id, id), inArray(readEntries.bookId, ownBookIds())),
     with: { book: true },
   });
 }

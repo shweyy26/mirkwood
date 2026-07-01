@@ -3,6 +3,7 @@
 import { db } from "@/db";
 import { settings } from "@/db/schema";
 import { revalidatePath } from "next/cache";
+import { getCurrentUserId } from "@/lib/user";
 
 export async function updateSettings(formData: FormData) {
   const pagesPerHour = Number(formData.get("pagesPerHour"));
@@ -20,10 +21,11 @@ export async function updateSettings(formData: FormData) {
     updatedAt: new Date(),
   };
 
+  const userId = getCurrentUserId();
   await db
     .insert(settings)
-    .values({ id: "singleton", ...values })
-    .onConflictDoUpdate({ target: settings.id, set: values });
+    .values({ userId, ...values })
+    .onConflictDoUpdate({ target: settings.userId, set: values });
 
   revalidatePath("/settings");
   revalidatePath("/");

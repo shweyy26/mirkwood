@@ -2,9 +2,10 @@
 
 import { db } from "@/db";
 import { books, readEntries } from "@/db/schema";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { todayString } from "@/lib/format";
+import { getCurrentUserId } from "@/lib/user";
 
 function str(fd: FormData, key: string): string | null {
   const v = fd.get(key);
@@ -47,7 +48,7 @@ export async function createBook(formData: FormData) {
 
   const [book] = await db
     .insert(books)
-    .values({ title, author, totalPages, genre, seriesId, seriesIndex })
+    .values({ userId: getCurrentUserId(), title, author, totalPages, genre, seriesId, seriesIndex })
     .returning();
 
   await db.insert(readEntries).values({
@@ -80,13 +81,13 @@ export async function updateBook(id: string, formData: FormData) {
       seriesIndex: num(formData, "seriesIndex"),
       updatedAt: new Date(),
     })
-    .where(eq(books.id, id));
+    .where(and(eq(books.id, id), eq(books.userId, getCurrentUserId())));
 
   revalidateAll();
 }
 
 export async function deleteBook(id: string) {
-  await db.delete(books).where(eq(books.id, id));
+  await db.delete(books).where(and(eq(books.id, id), eq(books.userId, getCurrentUserId())));
   revalidateAll();
 }
 

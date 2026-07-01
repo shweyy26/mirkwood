@@ -20,17 +20,20 @@ export const readStatusEnum = pgEnum("read_status", [
 
 export const series = pgTable("series", {
   id: uuid("id").primaryKey().defaultRandom(),
+  userId: text("user_id").notNull(),
   name: text("name").notNull(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
 export const books = pgTable("books", {
   id: uuid("id").primaryKey().defaultRandom(),
+  userId: text("user_id").notNull(),
   title: text("title").notNull(),
   author: text("author").notNull(),
   totalPages: integer("total_pages"),
   genre: text("genre"),
   coverUrl: text("cover_url"),
+  isbn: text("isbn"),
   seriesId: uuid("series_id").references(() => series.id, {
     onDelete: "set null",
   }),
@@ -56,7 +59,7 @@ export const readEntries = pgTable("read_entries", {
 });
 
 export const settings = pgTable("settings", {
-  id: text("id").primaryKey().default("singleton"),
+  userId: text("user_id").primaryKey(),
   pagesPerHour: integer("pages_per_hour").notNull().default(40),
   weekdayHours: real("weekday_hours").notNull().default(1),
   weekendHours: real("weekend_hours").notNull().default(3),

@@ -5,15 +5,8 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1782914335942,
-      "tag": "0000_true_thundra",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1782915170658,
-      "tag": "0001_mixed_wiccan",
+      "when": 1782920930657,
+      "tag": "0000_narrow_overlord",
       "breakpoints": true
     }
   ]
