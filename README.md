@@ -18,11 +18,9 @@ every device you open that URL from.
   you're reading at once.
 - **Re-read tracking**: "Read it again" starts a brand new read entry for a book
   without touching the history of your earlier read(s).
-- **Yearly goals**: set a books-per-year target, see progress vs. how far the
-  year has gotten, and a "realistic goal" calculator that turns your TBR size +
-  reading pace into a sane target.
-- **Stats**: books finished, total pages, genre breakdown (color-coded), all-time
-  or by year.
+- **Dashboard**: a personal greeting, your yearly reading goal (set a books-per-year
+  target, see progress vs. how far the year has gotten), stats (books finished,
+  total pages, genre breakdown), and your currently-reading list — all on one page.
 - **CSV import**: upload a Goodreads or StoryGraph library export (`/library/import`,
   format auto-detected) to bulk-add books. Books already in your library (matched
   by ISBN, or title + author) are skipped. StoryGraph's "Dates Read" field is

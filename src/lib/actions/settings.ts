@@ -32,5 +32,4 @@ export async function updateSettings(formData: FormData) {
 
   revalidatePath("/settings");
   revalidatePath("/");
-  revalidatePath("/goals");
 }

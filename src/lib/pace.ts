@@ -93,10 +93,3 @@ export function calculatePace(
     daysRemaining: daysRemaining.get(b.id) ?? null,
   }));
 }
-
-/** Rough estimate of how many books/year are realistically achievable given a reading pace. */
-export function estimateBooksPerYear(settings: PaceSettings, avgPagesPerBook: number): number {
-  if (avgPagesPerBook <= 0) return 0;
-  const annualPages = weeklyReadingHours(settings) * 52 * settings.pagesPerHour;
-  return annualPages / avgPagesPerBook;
-}

@@ -1,10 +1,12 @@
 import Link from "next/link";
 import { getCurrentlyReading, getFinishedEntries, getSettings } from "@/lib/queries";
-import { calculatePace, weeklyReadingHours } from "@/lib/pace";
-import { formatDate, currentYear } from "@/lib/format";
+import { calculatePace } from "@/lib/pace";
+import { formatDate, currentYear, fractionOfYearElapsed } from "@/lib/format";
+import { genreColor } from "@/lib/genre-colors";
 import { ProgressBar } from "@/components/ProgressBar";
 import { GenreTag } from "@/components/GenreTag";
 import { updateProgress, finishReadEntry, markDNF } from "@/lib/actions/books";
+import { updateSettings } from "@/lib/actions/settings";
 import { StarRatingInput } from "@/components/StarRating";
 import { BookCover } from "@/components/BookCover";
 
@@ -18,7 +20,9 @@ export default async function DashboardPage() {
   ]);
 
   const year = currentYear();
-  const finishedThisYear = finished.filter((e) => e.endDate?.startsWith(String(year))).length;
+  const finishedThisYear = finished.filter((e) => e.endDate?.startsWith(String(year)));
+  const goal = settings.yearlyGoal;
+  const yearFraction = fractionOfYearElapsed();
 
   const paceInputs = currentlyReading
     .filter((e) => e.book.totalPages)
@@ -29,38 +33,102 @@ export default async function DashboardPage() {
 
   const paceResults = calculatePace(paceInputs, settings);
   const paceById = new Map(paceResults.map((r) => [r.id, r]));
-  const weeklyHours = weeklyReadingHours(settings);
+
+  const totalBooks = finished.length;
+  const totalPages = finished.reduce((sum, e) => sum + (e.book.totalPages ?? 0), 0);
+  const genreCounts = new Map<string, number>();
+  for (const e of finished) {
+    const genre = e.book.genre?.trim() || "Unspecified";
+    genreCounts.set(genre, (genreCounts.get(genre) ?? 0) + 1);
+  }
+  const genreRows = Array.from(genreCounts.entries()).sort((a, b) => b[1] - a[1]);
 
   return (
     <div className="flex flex-col gap-8">
       <div className="flex flex-wrap items-center justify-between gap-4">
-        <div>
-          {settings.displayName && (
-            <p className="font-[family-name:var(--font-logo)] text-2xl text-accent">Hey {settings.displayName} 👋</p>
-          )}
-          <h1 className="font-display text-2xl font-semibold">Currently reading</h1>
-          <p className="text-sm text-muted ">
-            Estimate based on {settings.weekdayHours}h/weekday + {settings.weekendHours}h/weekend day (
-            {weeklyHours}h/week) at {settings.pagesPerHour} pages/hour.
-          </p>
-        </div>
-        <div className="flex gap-2">
-          <Link
-            href="/library/new"
-            className="rounded-md bg-accent px-3 py-2 text-sm font-medium text-accent-foreground hover:bg-accent-hover"
-          >
-            + Add book
-          </Link>
-          {settings.yearlyGoal ? (
-            <Link
-              href="/goals"
-              className="rounded-md border border-border px-3 py-2 text-sm font-medium "
-            >
-              {finishedThisYear}/{settings.yearlyGoal} goal
-            </Link>
-          ) : null}
-        </div>
+        {settings.displayName ? (
+          <p className="font-[family-name:var(--font-logo)] text-3xl text-accent">Hey {settings.displayName} 👋</p>
+        ) : (
+          <div />
+        )}
+        <Link
+          href="/library/new"
+          className="rounded-md bg-accent px-3 py-2 text-sm font-medium text-accent-foreground hover:bg-accent-hover"
+        >
+          + Add book
+        </Link>
       </div>
+
+      <section className="rounded-lg border border-border p-4">
+        <h2 className="font-display text-lg font-semibold">{year} reading goal</h2>
+        {goal ? (
+          <div className="mt-3 flex flex-col gap-2">
+            <ProgressBar fraction={finishedThisYear.length / goal} />
+            <p className="text-sm text-muted">
+              {finishedThisYear.length} / {goal} books finished this year
+              {" · "}
+              {finishedThisYear.length / goal >= yearFraction ? "on pace 🎉" : "a bit behind pace"}
+            </p>
+          </div>
+        ) : (
+          <p className="mt-2 text-sm text-muted">No goal set yet — pick a number below.</p>
+        )}
+
+        <form action={updateSettings} className="mt-4 flex items-center gap-2">
+          <input type="hidden" name="displayName" value={settings.displayName ?? ""} />
+          <input type="hidden" name="pagesPerHour" value={settings.pagesPerHour} />
+          <input type="hidden" name="weekdayHours" value={settings.weekdayHours} />
+          <input type="hidden" name="weekendHours" value={settings.weekendHours} />
+          <label className="text-sm" htmlFor="yearlyGoal">
+            Books this year:
+          </label>
+          <input
+            id="yearlyGoal"
+            type="number"
+            min={1}
+            name="yearlyGoal"
+            defaultValue={goal ?? ""}
+            className="w-24 rounded-md border border-border bg-transparent px-2 py-1 text-sm "
+          />
+          <button type="submit" className="rounded-md bg-accent px-3 py-1.5 text-sm font-medium text-accent-foreground hover:bg-accent-hover">
+            Save
+          </button>
+        </form>
+      </section>
+
+      <section className="rounded-lg border border-border p-4">
+        <h2 className="font-display text-lg font-semibold">Stats</h2>
+        <div className="mt-3 grid gap-4 sm:grid-cols-2">
+          <div className="rounded-lg border border-border p-4 text-center">
+            <p className="text-2xl font-semibold">{totalBooks}</p>
+            <p className="text-sm text-muted">Books finished</p>
+          </div>
+          <div className="rounded-lg border border-border p-4 text-center">
+            <p className="text-2xl font-semibold">{totalPages.toLocaleString()}</p>
+            <p className="text-sm text-muted">Total pages</p>
+          </div>
+        </div>
+
+        {genreRows.length > 0 && (
+          <div className="mt-4 flex flex-col gap-2">
+            {genreRows.map(([genre, count]) => {
+              const color = genreColor(genre);
+              const widthPct = totalBooks ? (count / totalBooks) * 100 : 0;
+              return (
+                <div key={genre} className="flex items-center gap-3">
+                  <span className="w-28 shrink-0 truncate text-sm">{genre}</span>
+                  <div className="h-3 flex-1 overflow-hidden rounded-full bg-surface">
+                    <div className="h-full rounded-full" style={{ width: `${widthPct}%`, backgroundColor: color.dot }} />
+                  </div>
+                  <span className="w-16 shrink-0 text-right text-sm text-muted">
+                    {count} book{count === 1 ? "" : "s"}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </section>
 
       {currentlyReading.length === 0 ? (
         <div className="rounded-lg border border-dashed border-border p-8 text-center text-muted  ">

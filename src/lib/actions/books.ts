@@ -22,8 +22,6 @@ function num(fd: FormData, key: string): number | null {
 function revalidateAll() {
   revalidatePath("/");
   revalidatePath("/library");
-  revalidatePath("/goals");
-  revalidatePath("/stats");
 }
 
 export async function createBook(formData: FormData) {

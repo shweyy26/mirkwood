@@ -82,8 +82,6 @@ export async function importLibrary(_prevState: ImportResult | null, formData: F
 
   revalidatePath("/");
   revalidatePath("/library");
-  revalidatePath("/goals");
-  revalidatePath("/stats");
 
   return { success: true, added, skipped, total: parsed.books.length };
 }

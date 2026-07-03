@@ -41,14 +41,6 @@ export async function getCurrentlyReading() {
   });
 }
 
-export async function getTbrEntries() {
-  return db.query.readEntries.findMany({
-    where: and(eq(readEntries.status, "tbr"), inArray(readEntries.bookId, ownBookIds())),
-    with: { book: true },
-    orderBy: [desc(readEntries.createdAt)],
-  });
-}
-
 export async function getFinishedEntries() {
   return db.query.readEntries.findMany({
     where: and(eq(readEntries.status, "finished"), inArray(readEntries.bookId, ownBookIds())),
