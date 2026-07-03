@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Fraunces } from "next/font/google";
+import { Geist, Geist_Mono, Fraunces, Caveat } from "next/font/google";
 import "./globals.css";
 import { Nav } from "@/components/Nav";
 
@@ -20,6 +20,12 @@ const fraunces = Fraunces({
   style: ["normal", "italic"],
 });
 
+const caveat = Caveat({
+  variable: "--font-caveat",
+  subsets: ["latin"],
+  weight: ["600", "700"],
+});
+
 export const metadata: Metadata = {
   title: "Reading Tracker",
   description: "A personal reading tracker",
@@ -33,7 +39,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} ${fraunces.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} ${fraunces.variable} ${caveat.variable} h-full antialiased`}
     >
       <head>
         <script

@@ -19,6 +19,18 @@ export default async function SettingsPage() {
 
       <form action={updateSettings} className="flex flex-col gap-4">
         <div>
+          <label className={labelClass} htmlFor="displayName">
+            Your name <span className="font-normal text-muted">(for the dashboard greeting)</span>
+          </label>
+          <input
+            id="displayName"
+            name="displayName"
+            defaultValue={settings.displayName ?? ""}
+            placeholder="e.g. Swetha"
+            className={inputClass}
+          />
+        </div>
+        <div>
           <label className={labelClass} htmlFor="pagesPerHour">
             Reading speed (pages/hour)
           </label>

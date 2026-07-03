@@ -35,6 +35,9 @@ export default async function DashboardPage() {
     <div className="flex flex-col gap-8">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
+          {settings.displayName && (
+            <p className="font-[family-name:var(--font-logo)] text-2xl text-accent">Hey {settings.displayName} 👋</p>
+          )}
           <h1 className="font-display text-2xl font-semibold">Currently reading</h1>
           <p className="text-sm text-muted ">
             Estimate based on {settings.weekdayHours}h/weekday + {settings.weekendHours}h/weekend day (

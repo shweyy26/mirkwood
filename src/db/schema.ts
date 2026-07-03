@@ -49,6 +49,7 @@ export const readEntries = pgTable("read_entries", {
 
 export const settings = pgTable("settings", {
   userId: text("user_id").primaryKey(),
+  displayName: text("display_name"),
   pagesPerHour: integer("pages_per_hour").notNull().default(40),
   weekdayHours: real("weekday_hours").notNull().default(1),
   weekendHours: real("weekend_hours").notNull().default(3),

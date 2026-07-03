@@ -12,8 +12,11 @@ export async function updateSettings(formData: FormData) {
   const yearlyGoalRaw = formData.get("yearlyGoal");
   const yearlyGoal =
     typeof yearlyGoalRaw === "string" && yearlyGoalRaw.trim() !== "" ? Number(yearlyGoalRaw) : null;
+  const displayNameRaw = formData.get("displayName");
+  const displayName = typeof displayNameRaw === "string" && displayNameRaw.trim() !== "" ? displayNameRaw.trim() : null;
 
   const values = {
+    displayName,
     pagesPerHour: Number.isFinite(pagesPerHour) && pagesPerHour > 0 ? pagesPerHour : 40,
     weekdayHours: Number.isFinite(weekdayHours) ? weekdayHours : 1,
     weekendHours: Number.isFinite(weekendHours) ? weekendHours : 3,
