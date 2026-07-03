@@ -15,6 +15,13 @@
       "when": 1783089198811,
       "tag": "0001_gorgeous_scrambler",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1783098689245,
+      "tag": "0002_charming_dexter_bennett",
+      "breakpoints": true
     }
   ]
 }

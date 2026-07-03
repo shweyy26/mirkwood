@@ -46,6 +46,7 @@ export default async function GoalsPage() {
         )}
 
         <form action={updateSettings} className="mt-4 flex items-center gap-2">
+          <input type="hidden" name="displayName" value={settings.displayName ?? ""} />
           <input type="hidden" name="pagesPerHour" value={settings.pagesPerHour} />
           <input type="hidden" name="weekdayHours" value={settings.weekdayHours} />
           <input type="hidden" name="weekendHours" value={settings.weekendHours} />

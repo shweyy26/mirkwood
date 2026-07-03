@@ -20,7 +20,7 @@ export function Nav() {
       <div className="mx-auto flex max-w-5xl flex-wrap items-center gap-x-8 gap-y-3 px-4 py-4">
         <Link
           href="/"
-          className="font-display text-xl font-semibold italic tracking-tight text-foreground"
+          className="font-[family-name:var(--font-logo)] text-3xl font-bold tracking-wide text-accent -rotate-2"
         >
           📚 Reading Tracker
         </Link>
