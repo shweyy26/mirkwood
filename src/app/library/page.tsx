@@ -27,6 +27,15 @@ export default async function LibraryPage({
   const { status = "all", q = "" } = await searchParams;
   const books = await getAllBooksWithEntries();
 
+  const statuses = books.map((book) => latestStatus(book.readEntries));
+  const counts = {
+    all: books.length,
+    tbr: statuses.filter((s) => s === "tbr").length,
+    reading: statuses.filter((s) => s === "reading").length,
+    finished: statuses.filter((s) => s === "finished").length,
+    dnf: statuses.filter((s) => s === "dnf").length,
+  };
+
   const filtered = books.filter((book) => {
     const matchesStatus = status === "all" || latestStatus(book.readEntries) === status;
     const query = q.trim().toLowerCase();
@@ -38,7 +47,7 @@ export default async function LibraryPage({
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-wrap items-center justify-between gap-4">
-        <h1 className="text-2xl font-semibold">Library</h1>
+        <h1 className="font-display text-2xl font-semibold">Library</h1>
         <div className="flex gap-2">
           <Link
             href="/library/import"
@@ -77,7 +86,7 @@ export default async function LibraryPage({
                 : "bg-surface text-muted hover:bg-surface-hover hover:text-foreground"
             }`}
           >
-            {tab.label}
+            {tab.label} <span className="opacity-70">({counts[tab.value]})</span>
           </Link>
         ))}
       </div>
@@ -85,7 +94,7 @@ export default async function LibraryPage({
       {filtered.length === 0 ? (
         <p className="text-muted ">No books match this filter yet.</p>
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
           {filtered.map((book) => (
             <BookCard key={book.id} book={book} />
           ))}

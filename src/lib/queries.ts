@@ -1,5 +1,5 @@
 import { db } from "@/db";
-import { books, readEntries, series, settings } from "@/db/schema";
+import { books, readEntries, settings } from "@/db/schema";
 import { and, asc, desc, eq, inArray } from "drizzle-orm";
 import { getCurrentUserId } from "@/lib/user";
 
@@ -21,7 +21,7 @@ export async function getSettings() {
 export async function getAllBooksWithEntries() {
   return db.query.books.findMany({
     where: eq(books.userId, getCurrentUserId()),
-    with: { readEntries: { orderBy: [desc(readEntries.createdAt)] }, series: true },
+    with: { readEntries: { orderBy: [desc(readEntries.createdAt)] } },
     orderBy: [desc(books.createdAt)],
   });
 }
@@ -29,7 +29,7 @@ export async function getAllBooksWithEntries() {
 export async function getBookWithEntries(id: string) {
   return db.query.books.findFirst({
     where: and(eq(books.id, id), eq(books.userId, getCurrentUserId())),
-    with: { readEntries: { orderBy: [desc(readEntries.createdAt)] }, series: true },
+    with: { readEntries: { orderBy: [desc(readEntries.createdAt)] } },
   });
 }
 
@@ -55,27 +55,6 @@ export async function getFinishedEntries() {
     with: { book: true },
     orderBy: [desc(readEntries.endDate)],
   });
-}
-
-export async function getAllSeriesWithBooks() {
-  return db.query.series.findMany({
-    where: eq(series.userId, getCurrentUserId()),
-    with: {
-      books: {
-        with: { readEntries: true },
-        orderBy: [asc(books.seriesIndex)],
-      },
-    },
-    orderBy: [asc(series.name)],
-  });
-}
-
-export async function getSeriesList() {
-  return db
-    .select()
-    .from(series)
-    .where(eq(series.userId, getCurrentUserId()))
-    .orderBy(asc(series.name));
 }
 
 export async function getReadEntry(id: string) {

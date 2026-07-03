@@ -6,6 +6,7 @@ import { ProgressBar } from "@/components/ProgressBar";
 import { GenreTag } from "@/components/GenreTag";
 import { updateProgress, finishReadEntry, markDNF } from "@/lib/actions/books";
 import { StarRatingInput } from "@/components/StarRating";
+import { BookCover } from "@/components/BookCover";
 
 export const dynamic = "force-dynamic";
 
@@ -34,7 +35,7 @@ export default async function DashboardPage() {
     <div className="flex flex-col gap-8">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-semibold">Currently reading</h1>
+          <h1 className="font-display text-2xl font-semibold">Currently reading</h1>
           <p className="text-sm text-muted ">
             Estimate based on {settings.weekdayHours}h/weekday + {settings.weekendHours}h/weekend day (
             {weeklyHours}h/week) at {settings.pagesPerHour} pages/hour.
@@ -74,21 +75,31 @@ export default async function DashboardPage() {
 
             return (
               <div key={entry.id} className="flex flex-col gap-3 rounded-lg border border-border p-4 ">
-                <div className="flex items-start justify-between gap-2">
-                  <div>
-                    <Link href={`/library/${entry.book.id}`} className="font-medium hover:underline">
-                      {entry.book.title}
-                    </Link>
-                    <p className="text-sm text-muted ">{entry.book.author}</p>
+                <div className="flex items-start gap-3">
+                  <BookCover
+                    title={entry.book.title}
+                    genre={entry.book.genre}
+                    isbn={entry.book.isbn}
+                    compact
+                    className="h-20 w-14 shrink-0"
+                  />
+                  <div className="flex flex-1 items-start justify-between gap-2">
+                    <div>
+                      <Link href={`/library/${entry.book.id}`} className="font-medium hover:underline">
+                        {entry.book.title}
+                      </Link>
+                      <p className="text-sm text-muted ">{entry.book.author}</p>
+                      <div className="mt-1">
+                        <GenreTag genre={entry.book.genre} />
+                      </div>
+                    </div>
+                    {entry.isReread && (
+                      <span className="shrink-0 rounded-full bg-purple-100 px-2 py-0.5 text-xs font-medium text-purple-700 dark:bg-purple-950 dark:text-purple-300">
+                        Re-read
+                      </span>
+                    )}
                   </div>
-                  {entry.isReread && (
-                    <span className="rounded-full bg-purple-100 px-2 py-0.5 text-xs font-medium text-purple-700 dark:bg-purple-950 dark:text-purple-300">
-                      Re-read
-                    </span>
-                  )}
                 </div>
-
-                <GenreTag genre={entry.book.genre} />
 
                 {pages ? (
                   <>

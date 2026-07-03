@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { redirect } from "next/navigation";
-import { getBookWithEntries, getSeriesList } from "@/lib/queries";
+import { getBookWithEntries } from "@/lib/queries";
+import { BookCover } from "@/components/BookCover";
 import {
   updateBook,
   deleteBook,
@@ -33,7 +34,7 @@ function sortEntries(entries: ReadEntry[]) {
 
 export default async function BookDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const [book, seriesList] = await Promise.all([getBookWithEntries(id), getSeriesList()]);
+  const book = await getBookWithEntries(id);
   if (!book) notFound();
 
   const entries = sortEntries(book.readEntries);
@@ -48,12 +49,15 @@ export default async function BookDetailPage({ params }: { params: Promise<{ id:
 
   return (
     <div className="flex flex-col gap-8 max-w-2xl">
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-semibold">{book.title}</h1>
-          <p className="text-muted ">{book.author}</p>
+      <div className="flex items-start gap-4">
+        <BookCover title={book.title} genre={book.genre} isbn={book.isbn} className="h-32 w-24 shrink-0" />
+        <div className="flex flex-1 items-start justify-between gap-4">
+          <div>
+            <h1 className="font-display text-2xl font-semibold">{book.title}</h1>
+            <p className="text-muted ">{book.author}</p>
+          </div>
+          {activeEntry && <StatusBadge status={activeEntry.status} />}
         </div>
-        {activeEntry && <StatusBadge status={activeEntry.status} />}
       </div>
 
       {/* Status actions */}
@@ -273,32 +277,11 @@ export default async function BookDetailPage({ params }: { params: Promise<{ id:
               </label>
               <input id="genre" name="genre" defaultValue={book.genre ?? ""} className={inputClass} />
             </div>
-            <div>
-              <label className={labelClass} htmlFor="seriesId">
-                Series
+            <div className="sm:col-span-2">
+              <label className={labelClass} htmlFor="isbn">
+                ISBN <span className="font-normal text-muted">(used to fetch a cover image)</span>
               </label>
-              <select id="seriesId" name="seriesId" defaultValue={book.seriesId ?? ""} className={inputClass}>
-                <option value="">None</option>
-                {seriesList.map((s) => (
-                  <option key={s.id} value={s.id}>
-                    {s.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className={labelClass} htmlFor="seriesIndex">
-                Book # in series
-              </label>
-              <input
-                type="number"
-                step="0.5"
-                min={0}
-                id="seriesIndex"
-                name="seriesIndex"
-                defaultValue={book.seriesIndex ?? ""}
-                className={inputClass}
-              />
+              <input id="isbn" name="isbn" defaultValue={book.isbn ?? ""} className={inputClass} />
             </div>
           </div>
           <button type="submit" className="self-start rounded-md bg-accent px-4 py-2 text-sm font-medium text-accent-foreground hover:bg-accent-hover">
