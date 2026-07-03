@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 :root {
   --background: #fbf7f0;
   --foreground: #2a2118;
@@ -29,19 +31,17 @@
   --font-display: var(--font-fraunces);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #17130f;
-    --foreground: #f3ede4;
-    --card: #221c15;
-    --border: #3b2f22;
-    --muted: #b3a691;
-    --surface: #241d16;
-    --surface-hover: #2d251c;
-    --accent: #e08a4f;
-    --accent-hover: #ef9c62;
-    --accent-foreground: #241206;
-  }
+.dark {
+  --background: #17130f;
+  --foreground: #f3ede4;
+  --card: #221c15;
+  --border: #3b2f22;
+  --muted: #b3a691;
+  --surface: #241d16;
+  --surface-hover: #2d251c;
+  --accent: #e08a4f;
+  --accent-hover: #ef9c62;
+  --accent-foreground: #241206;
 }
 
 body {

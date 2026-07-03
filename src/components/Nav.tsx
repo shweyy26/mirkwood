@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { ThemeToggle } from "./ThemeToggle";
 
 const LINKS = [
   { href: "/", label: "Dashboard" },
@@ -23,7 +24,7 @@ export function Nav() {
         >
           📚 Reading Tracker
         </Link>
-        <nav className="flex flex-wrap gap-x-1 gap-y-1 text-sm">
+        <nav className="flex flex-1 flex-wrap items-center gap-x-1 gap-y-1 text-sm">
           {LINKS.map((link) => {
             const isActive = link.href === "/" ? pathname === "/" : pathname.startsWith(link.href);
             return (
@@ -41,6 +42,7 @@ export function Nav() {
             );
           })}
         </nav>
+        <ThemeToggle />
       </div>
     </header>
   );
