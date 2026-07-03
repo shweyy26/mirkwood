@@ -6,7 +6,7 @@ import { StarRatingInput } from "./StarRating";
 import { todayString } from "@/lib/format";
 
 const inputClass =
-  "w-full rounded-md border border-black/15 bg-transparent px-3 py-2 text-sm dark:border-white/20";
+  "w-full rounded-md border border-border bg-transparent px-3 py-2 text-sm ";
 const labelClass = "block text-sm font-medium mb-1";
 
 export function BookForm({
@@ -66,7 +66,7 @@ export function BookForm({
         </div>
       </div>
 
-      <fieldset className="rounded-md border border-black/15 p-4 dark:border-white/20">
+      <fieldset className="rounded-md border border-border p-4 ">
         <legend className="px-1 text-sm font-medium">Status</legend>
         <div className="flex flex-wrap gap-4 text-sm">
           {(
@@ -136,7 +136,7 @@ export function BookForm({
 
       <button
         type="submit"
-        className="self-start rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-500"
+        className="self-start rounded-md bg-accent px-4 py-2 text-sm font-medium text-accent-foreground hover:bg-accent-hover"
       >
         Add book
       </button>

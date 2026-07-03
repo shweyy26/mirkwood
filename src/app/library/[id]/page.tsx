@@ -22,7 +22,7 @@ import type { ReadEntry } from "@/db/schema";
 export const dynamic = "force-dynamic";
 
 const inputClass =
-  "w-full rounded-md border border-black/15 bg-transparent px-3 py-2 text-sm dark:border-white/20";
+  "w-full rounded-md border border-border bg-transparent px-3 py-2 text-sm ";
 const labelClass = "block text-sm font-medium mb-1";
 
 function sortEntries(entries: ReadEntry[]) {
@@ -51,16 +51,16 @@ export default async function BookDetailPage({ params }: { params: Promise<{ id:
       <div className="flex items-start justify-between gap-4">
         <div>
           <h1 className="text-2xl font-semibold">{book.title}</h1>
-          <p className="text-black/60 dark:text-white/60">{book.author}</p>
+          <p className="text-muted ">{book.author}</p>
         </div>
         {activeEntry && <StatusBadge status={activeEntry.status} />}
       </div>
 
       {/* Status actions */}
-      <section className="rounded-lg border border-black/10 p-4 dark:border-white/10">
+      <section className="rounded-lg border border-border p-4 ">
         {activeEntry?.status === "tbr" && (
           <form action={startReading.bind(null, activeEntry.id, undefined)}>
-            <button type="submit" className="rounded-md bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-500">
+            <button type="submit" className="rounded-md bg-accent px-3 py-2 text-sm font-medium text-accent-foreground hover:bg-accent-hover">
               Start reading
             </button>
           </form>
@@ -71,12 +71,12 @@ export default async function BookDetailPage({ params }: { params: Promise<{ id:
             {book.totalPages ? (
               <>
                 <ProgressBar fraction={activeEntry.currentPage / book.totalPages} />
-                <p className="text-sm text-black/60 dark:text-white/60">
+                <p className="text-sm text-muted ">
                   {activeEntry.currentPage} / {book.totalPages} pages · started {formatDate(activeEntry.startDate)}
                 </p>
               </>
             ) : (
-              <p className="text-sm text-black/60 dark:text-white/60">Started {formatDate(activeEntry.startDate)}</p>
+              <p className="text-sm text-muted ">Started {formatDate(activeEntry.startDate)}</p>
             )}
 
             <form
@@ -97,9 +97,9 @@ export default async function BookDetailPage({ params }: { params: Promise<{ id:
                 min={0}
                 max={book.totalPages ?? undefined}
                 defaultValue={activeEntry.currentPage}
-                className="w-24 rounded-md border border-black/15 bg-transparent px-2 py-1 text-sm dark:border-white/20"
+                className="w-24 rounded-md border border-border bg-transparent px-2 py-1 text-sm "
               />
-              <button type="submit" className="rounded-md border border-black/15 px-3 py-1.5 text-sm dark:border-white/20">
+              <button type="submit" className="rounded-md border border-border px-3 py-1.5 text-sm ">
                 Save
               </button>
             </form>
@@ -157,7 +157,7 @@ export default async function BookDetailPage({ params }: { params: Promise<{ id:
         <section className="flex flex-col gap-3">
           <h2 className="text-lg font-semibold">Read history</h2>
           {pastEntries.map((entry) => (
-            <details key={entry.id} className="rounded-lg border border-black/10 p-4 dark:border-white/10">
+            <details key={entry.id} className="rounded-lg border border-border p-4 ">
               <summary className="flex cursor-pointer flex-wrap items-center justify-between gap-2">
                 <span className="flex items-center gap-2">
                   <StatusBadge status={entry.status} />
@@ -166,7 +166,7 @@ export default async function BookDetailPage({ params }: { params: Promise<{ id:
                       Re-read
                     </span>
                   )}
-                  <span className="text-sm text-black/60 dark:text-white/60">
+                  <span className="text-sm text-muted ">
                     {formatDate(entry.startDate)} → {formatDate(entry.endDate)}
                   </span>
                 </span>
@@ -219,7 +219,7 @@ export default async function BookDetailPage({ params }: { params: Promise<{ id:
                   />
                 </div>
                 <div className="flex gap-2">
-                  <button type="submit" className="rounded-md border border-black/15 px-3 py-1.5 text-sm dark:border-white/20">
+                  <button type="submit" className="rounded-md border border-border px-3 py-1.5 text-sm ">
                     Save changes
                   </button>
                 </div>
@@ -301,7 +301,7 @@ export default async function BookDetailPage({ params }: { params: Promise<{ id:
               />
             </div>
           </div>
-          <button type="submit" className="self-start rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-500">
+          <button type="submit" className="self-start rounded-md bg-accent px-4 py-2 text-sm font-medium text-accent-foreground hover:bg-accent-hover">
             Save details
           </button>
         </form>

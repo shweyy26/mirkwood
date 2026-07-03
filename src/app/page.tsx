@@ -35,7 +35,7 @@ export default async function DashboardPage() {
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-semibold">Currently reading</h1>
-          <p className="text-sm text-black/60 dark:text-white/60">
+          <p className="text-sm text-muted ">
             Estimate based on {settings.weekdayHours}h/weekday + {settings.weekendHours}h/weekend day (
             {weeklyHours}h/week) at {settings.pagesPerHour} pages/hour.
           </p>
@@ -43,14 +43,14 @@ export default async function DashboardPage() {
         <div className="flex gap-2">
           <Link
             href="/library/new"
-            className="rounded-md bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-500"
+            className="rounded-md bg-accent px-3 py-2 text-sm font-medium text-accent-foreground hover:bg-accent-hover"
           >
             + Add book
           </Link>
           {settings.yearlyGoal ? (
             <Link
               href="/goals"
-              className="rounded-md border border-black/15 px-3 py-2 text-sm font-medium dark:border-white/20"
+              className="rounded-md border border-border px-3 py-2 text-sm font-medium "
             >
               {finishedThisYear}/{settings.yearlyGoal} goal
             </Link>
@@ -59,9 +59,9 @@ export default async function DashboardPage() {
       </div>
 
       {currentlyReading.length === 0 ? (
-        <div className="rounded-lg border border-dashed border-black/15 p-8 text-center text-black/60 dark:border-white/20 dark:text-white/60">
+        <div className="rounded-lg border border-dashed border-border p-8 text-center text-muted  ">
           <p>Nothing in progress right now.</p>
-          <Link href="/library" className="mt-2 inline-block text-blue-600 hover:underline dark:text-blue-400">
+          <Link href="/library" className="mt-2 inline-block text-accent hover:underline">
             Start something from your TBR →
           </Link>
         </div>
@@ -73,13 +73,13 @@ export default async function DashboardPage() {
             const fraction = pages ? entry.currentPage / pages : 0;
 
             return (
-              <div key={entry.id} className="flex flex-col gap-3 rounded-lg border border-black/10 p-4 dark:border-white/10">
+              <div key={entry.id} className="flex flex-col gap-3 rounded-lg border border-border p-4 ">
                 <div className="flex items-start justify-between gap-2">
                   <div>
                     <Link href={`/library/${entry.book.id}`} className="font-medium hover:underline">
                       {entry.book.title}
                     </Link>
-                    <p className="text-sm text-black/60 dark:text-white/60">{entry.book.author}</p>
+                    <p className="text-sm text-muted ">{entry.book.author}</p>
                   </div>
                   {entry.isReread && (
                     <span className="rounded-full bg-purple-100 px-2 py-0.5 text-xs font-medium text-purple-700 dark:bg-purple-950 dark:text-purple-300">
@@ -93,7 +93,7 @@ export default async function DashboardPage() {
                 {pages ? (
                   <>
                     <ProgressBar fraction={fraction} />
-                    <div className="flex items-center justify-between text-sm text-black/60 dark:text-white/60">
+                    <div className="flex items-center justify-between text-sm text-muted ">
                       <span>
                         {entry.currentPage} / {pages} pages
                       </span>
@@ -105,11 +105,11 @@ export default async function DashboardPage() {
                         {pace.daysRemaining ? ` (~${pace.daysRemaining} days)` : ""}
                       </p>
                     ) : (
-                      <p className="text-sm text-black/50 dark:text-white/50">Almost done!</p>
+                      <p className="text-sm text-muted ">Almost done!</p>
                     )}
                   </>
                 ) : (
-                  <p className="text-sm text-black/50 dark:text-white/50">
+                  <p className="text-sm text-muted ">
                     Add a page count on the book page to get a pace estimate.
                   </p>
                 )}
@@ -122,7 +122,7 @@ export default async function DashboardPage() {
                   }}
                   className="flex items-center gap-2"
                 >
-                  <label className="text-sm text-black/60 dark:text-white/60" htmlFor={`page-${entry.id}`}>
+                  <label className="text-sm text-muted " htmlFor={`page-${entry.id}`}>
                     Update page
                   </label>
                   <input
@@ -132,15 +132,15 @@ export default async function DashboardPage() {
                     min={0}
                     max={pages ?? undefined}
                     defaultValue={entry.currentPage}
-                    className="w-20 rounded-md border border-black/15 bg-transparent px-2 py-1 text-sm dark:border-white/20"
+                    className="w-20 rounded-md border border-border bg-transparent px-2 py-1 text-sm "
                   />
-                  <button type="submit" className="rounded-md border border-black/15 px-2 py-1 text-sm dark:border-white/20">
+                  <button type="submit" className="rounded-md border border-border px-2 py-1 text-sm ">
                     Save
                   </button>
                 </form>
 
                 <details className="text-sm">
-                  <summary className="cursor-pointer text-black/60 dark:text-white/60">Finish or DNF</summary>
+                  <summary className="cursor-pointer text-muted ">Finish or DNF</summary>
                   <div className="mt-3 flex flex-col gap-3">
                     <form action={finishReadEntry.bind(null, entry.id)} className="flex flex-col gap-2">
                       <div className="flex items-center gap-2">
@@ -149,7 +149,7 @@ export default async function DashboardPage() {
                           id={`endDate-${entry.id}`}
                           type="date"
                           name="endDate"
-                          className="rounded-md border border-black/15 bg-transparent px-2 py-1 text-sm dark:border-white/20"
+                          className="rounded-md border border-border bg-transparent px-2 py-1 text-sm "
                         />
                       </div>
                       <StarRatingInput name="rating" />
@@ -157,7 +157,7 @@ export default async function DashboardPage() {
                         name="notes"
                         placeholder="Notes / review"
                         rows={2}
-                        className="rounded-md border border-black/15 bg-transparent px-2 py-1 text-sm dark:border-white/20"
+                        className="rounded-md border border-border bg-transparent px-2 py-1 text-sm "
                       />
                       <button
                         type="submit"

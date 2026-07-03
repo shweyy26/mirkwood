@@ -20,19 +20,19 @@ export function BookCard({ book }: { book: BookWithRelations }) {
   return (
     <Link
       href={`/library/${book.id}`}
-      className="flex flex-col gap-2 rounded-lg border border-black/10 p-4 transition hover:border-black/25 dark:border-white/10 dark:hover:border-white/25"
+      className="flex flex-col gap-2 rounded-lg border border-border p-4 transition hover:border-accent/50  "
     >
       <div className="flex items-start justify-between gap-2">
         <div>
           <h3 className="font-medium leading-tight">{book.title}</h3>
-          <p className="text-sm text-black/60 dark:text-white/60">{book.author}</p>
+          <p className="text-sm text-muted ">{book.author}</p>
         </div>
         {entry && <StatusBadge status={entry.status} />}
       </div>
       <div className="flex flex-wrap items-center gap-2">
         <GenreTag genre={book.genre} />
         {book.series && (
-          <span className="text-xs text-black/50 dark:text-white/50">
+          <span className="text-xs text-muted ">
             {book.series.name}
             {book.seriesIndex != null ? ` #${book.seriesIndex}` : ""}
           </span>

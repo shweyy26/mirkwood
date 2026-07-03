@@ -20,13 +20,13 @@ export function ImportForm() {
           type="file"
           accept=".csv,text/csv"
           required
-          className="w-full rounded-md border border-black/15 bg-transparent px-3 py-2 text-sm dark:border-white/20"
+          className="w-full rounded-md border border-border bg-transparent px-3 py-2 text-sm "
         />
       </div>
       <button
         type="submit"
         disabled={pending}
-        className="self-start rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-500 disabled:opacity-50"
+        className="self-start rounded-md bg-accent px-4 py-2 text-sm font-medium text-accent-foreground hover:bg-accent-hover disabled:opacity-50"
       >
         {pending ? "Importing…" : "Import"}
       </button>
