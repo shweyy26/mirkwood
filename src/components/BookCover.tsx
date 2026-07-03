@@ -29,7 +29,35 @@ function isbnCoverUrl(isbn: string): string {
   return `https://covers.openlibrary.org/b/isbn/${encodeURIComponent(digits)}-M.jpg?default=false`;
 }
 
-/** Falls back through: cover-by-ISBN -> title/author search -> colored placeholder. */
+/** Series/edition suffixes like "(The Final Empire, #1)" hurt exact-ish search matching. */
+function searchTitle(title: string): string {
+  return title.replace(/\s*\([^)]*\)\s*$/, "").trim() || title;
+}
+
+async function findOpenLibraryCover(title: string, author?: string | null): Promise<string | null> {
+  const q = author ? `${title} ${author}` : title;
+  const params = new URLSearchParams({ q, fields: "cover_i", limit: "1" });
+  const res = await fetch(`https://openlibrary.org/search.json?${params.toString()}`);
+  if (!res.ok) return null;
+  const data = await res.json();
+  const coverId = data?.docs?.[0]?.cover_i;
+  return coverId ? `https://covers.openlibrary.org/b/id/${coverId}-M.jpg` : null;
+}
+
+async function findGoogleBooksCover(title: string, author?: string | null): Promise<string | null> {
+  const q = author ? `intitle:${title} inauthor:${author}` : `intitle:${title}`;
+  const params = new URLSearchParams({ q, maxResults: "1" });
+  const res = await fetch(`https://www.googleapis.com/books/v1/volumes?${params.toString()}`);
+  if (!res.ok) return null;
+  const data = await res.json();
+  const thumbnail = data?.items?.[0]?.volumeInfo?.imageLinks?.thumbnail;
+  // Google returns http:// links that 404 under https - the same path works fine upgraded.
+  return thumbnail ? thumbnail.replace(/^http:/, "https:") : null;
+}
+
+type Stage = "isbn" | "ol-search" | "google-search" | "found" | "placeholder";
+
+/** Falls back through: cover-by-ISBN -> Open Library search -> Google Books search -> placeholder. */
 export function BookCover({
   title,
   author,
@@ -46,41 +74,35 @@ export function BookCover({
   className?: string;
 }) {
   const [src, setSrc] = useState<string | null>(isbn ? isbnCoverUrl(isbn) : null);
-  const [stage, setStage] = useState<"isbn" | "searching" | "found" | "placeholder">(
-    isbn ? "isbn" : "searching"
-  );
+  const [stage, setStage] = useState<Stage>(isbn ? "isbn" : "ol-search");
 
   useEffect(() => {
-    if (stage !== "searching") return;
+    if (stage !== "ol-search" && stage !== "google-search") return;
     let cancelled = false;
+    const cleanTitle = searchTitle(title);
+    const finder = stage === "ol-search" ? findOpenLibraryCover : findGoogleBooksCover;
 
-    const params = new URLSearchParams({ title, fields: "cover_i", limit: "1" });
-    if (author) params.set("author", author);
-
-    fetch(`https://openlibrary.org/search.json?${params.toString()}`)
-      .then((res) => (res.ok ? res.json() : null))
-      .then((data) => {
+    finder(cleanTitle, author)
+      .then((found) => {
         if (cancelled) return;
-        const coverId = data?.docs?.[0]?.cover_i;
-        if (coverId) {
-          setSrc(`https://covers.openlibrary.org/b/id/${coverId}-M.jpg`);
+        if (found) {
+          setSrc(found);
           setStage("found");
         } else {
-          setStage("placeholder");
+          setStage(stage === "ol-search" ? "google-search" : "placeholder");
         }
       })
       .catch(() => {
-        if (!cancelled) setStage("placeholder");
+        if (!cancelled) setStage(stage === "ol-search" ? "google-search" : "placeholder");
       });
 
     return () => {
       cancelled = true;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [stage]);
+  }, [stage, title, author]);
 
   function handleImageError() {
-    if (stage === "isbn") setStage("searching");
+    if (stage === "isbn") setStage("ol-search");
     else setStage("placeholder");
   }
 
