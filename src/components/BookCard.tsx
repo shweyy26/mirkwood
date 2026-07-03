@@ -23,7 +23,13 @@ export function BookCard({ book }: { book: BookWithRelations }) {
       className="group flex flex-col gap-3 rounded-lg border border-border p-3 transition-all hover:-translate-y-0.5 hover:border-accent/50 hover:shadow-lg"
     >
       <div className="relative">
-        <BookCover title={book.title} genre={book.genre} isbn={book.isbn} className="aspect-[2/3] w-full" />
+        <BookCover
+          title={book.title}
+          author={book.author}
+          genre={book.genre}
+          isbn={book.isbn}
+          className="aspect-[2/3] w-full"
+        />
         {entry && (
           <span className="absolute right-1.5 top-1.5">
             <StatusBadge status={entry.status} />

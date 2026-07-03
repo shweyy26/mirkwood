@@ -50,7 +50,13 @@ export default async function BookDetailPage({ params }: { params: Promise<{ id:
   return (
     <div className="flex flex-col gap-8 max-w-2xl">
       <div className="flex items-start gap-4">
-        <BookCover title={book.title} genre={book.genre} isbn={book.isbn} className="h-32 w-24 shrink-0" />
+        <BookCover
+          title={book.title}
+          author={book.author}
+          genre={book.genre}
+          isbn={book.isbn}
+          className="h-32 w-24 shrink-0"
+        />
         <div className="flex flex-1 items-start justify-between gap-4">
           <div>
             <h1 className="font-display text-2xl font-semibold">{book.title}</h1>

@@ -78,6 +78,7 @@ export default async function DashboardPage() {
                 <div className="flex items-start gap-3">
                   <BookCover
                     title={entry.book.title}
+                    author={entry.book.author}
                     genre={entry.book.genre}
                     isbn={entry.book.isbn}
                     compact
