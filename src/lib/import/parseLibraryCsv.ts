@@ -27,6 +27,25 @@ function clean(value: string | undefined | null): string | null {
   return v ? v : null;
 }
 
+/** Headers can carry a BOM, stray casing, or trailing whitespace depending on how the file was saved/re-saved. */
+function normalizeHeaderKey(key: string): string {
+  return key.replace(/^﻿/, "").trim().toLowerCase();
+}
+
+function getField(row: Row, name: string): string | undefined {
+  const wanted = normalizeHeaderKey(name);
+  for (const key of Object.keys(row)) {
+    if (normalizeHeaderKey(key) === wanted) return row[key];
+  }
+  return undefined;
+}
+
+function hasHeader(records: Row[], name: string): boolean {
+  if (!records.length) return false;
+  const wanted = normalizeHeaderKey(name);
+  return Object.keys(records[0]).some((k) => normalizeHeaderKey(k) === wanted);
+}
+
 function normalizeDateToken(token: string): string | null {
   const parts = token.split(/[\/-]/).map((p) => p.trim());
   if (parts.length !== 3) return null;
@@ -64,32 +83,34 @@ function parseRatingField(value: string | undefined | null): number | null {
   return Math.min(5, Math.max(1, Math.round(n)));
 }
 
-function detectHeaders(records: Row[]): string[] {
-  return records.length ? Object.keys(records[0]) : [];
+/** The shelf/status column is the source of truth; a missing or unrecognized shelf name falls back to "tbr" rather than guessing from dates. */
+function normalizeGoodreadsShelf(raw: string | null): ImportStatus {
+  const shelf = (raw ?? "").toLowerCase().trim();
+  if (shelf === "currently-reading") return "reading";
+  if (shelf === "did-not-finish" || shelf === "dnf") return "dnf";
+  if (shelf === "read") return "finished";
+  return "tbr";
 }
 
 function parseGoodreads(records: Row[]): NormalizedBook[] {
   const books: NormalizedBook[] = [];
 
   for (const row of records) {
-    const title = clean(row["Title"]);
-    const author = clean(row["Author"]);
+    const title = clean(getField(row, "Title"));
+    const author = clean(getField(row, "Author"));
     if (!title || !author) continue;
 
-    const isbn = stripGoodreadsFormula(row["ISBN13"]) ?? stripGoodreadsFormula(row["ISBN"]);
-    const totalPages = parsePagesField(row["Number of Pages"]);
-    const genre = firstNonStatusTag(clean(row["Bookshelves"]), ["read", "to-read", "currently-reading"]);
+    const isbn = stripGoodreadsFormula(getField(row, "ISBN13")) ?? stripGoodreadsFormula(getField(row, "ISBN"));
+    const totalPages = parsePagesField(getField(row, "Number of Pages"));
+    const genre = firstNonStatusTag(clean(getField(row, "Bookshelves")), ["read", "to-read", "currently-reading", "did-not-finish"]);
 
-    const dateRead = normalizeDateToken(clean(row["Date Read"]) ?? "");
-    const dateAdded = normalizeDateToken(clean(row["Date Added"]) ?? "");
-    const rating = parseRatingField(row["My Rating"]);
-    const notes = clean(row["My Review"]);
-    const shelf = (clean(row["Exclusive Shelf"]) ?? "").toLowerCase();
+    const dateRead = normalizeDateToken(clean(getField(row, "Date Read")) ?? "");
+    const dateAdded = normalizeDateToken(clean(getField(row, "Date Added")) ?? "");
+    const rating = parseRatingField(getField(row, "My Rating"));
+    const notes = clean(getField(row, "My Review"));
+    const status = normalizeGoodreadsShelf(clean(getField(row, "Exclusive Shelf")));
 
-    let status: ImportStatus = "tbr";
-    if (dateRead) status = "finished";
-    else if (shelf === "currently-reading") status = "reading";
-    else if (shelf === "read") status = "finished";
+    const isDone = status === "finished" || status === "dnf";
 
     books.push({
       title,
@@ -102,9 +123,9 @@ function parseGoodreads(records: Row[]): NormalizedBook[] {
           status,
           isReread: false,
           startDate: status === "tbr" ? null : dateRead ?? dateAdded,
-          endDate: status === "finished" ? dateRead ?? dateAdded : null,
+          endDate: isDone ? dateRead ?? dateAdded : null,
           rating: status === "finished" ? rating : null,
-          notes: status === "finished" ? notes : null,
+          notes: isDone ? notes : null,
         },
       ],
     });
@@ -142,39 +163,43 @@ function parseStoryGraph(records: Row[]): NormalizedBook[] {
   const books: NormalizedBook[] = [];
 
   for (const row of records) {
-    const title = clean(row["Title"]);
-    const author = clean(row["Authors"]);
+    const title = clean(getField(row, "Title"));
+    const author = clean(getField(row, "Authors"));
     if (!title || !author) continue;
 
-    const isbn = clean(row["ISBN/UID"]);
-    const genre = firstNonStatusTag(clean(row["Tags"]), []);
-    const rating = parseRatingField(row["Star Rating"]);
-    const notes = clean(row["Review"]);
-    const dateAdded = normalizeDateToken(clean(row["Date Added"]) ?? "");
-    const readStatus = normalizeStoryGraphStatus(clean(row["Read Status"]));
+    const isbn = clean(getField(row, "ISBN/UID"));
+    const genre = firstNonStatusTag(clean(getField(row, "Tags")), []);
+    const rating = parseRatingField(getField(row, "Star Rating"));
+    const notes = clean(getField(row, "Review"));
+    const dateAdded = normalizeDateToken(clean(getField(row, "Date Added")) ?? "");
+    const lastDateRead = normalizeDateToken(clean(getField(row, "Last Date Read")) ?? "");
+    const status = normalizeStoryGraphStatus(clean(getField(row, "Read Status")));
 
-    const periods = parseStoryGraphDatesRead(clean(row["Dates Read"]));
+    const periods = parseStoryGraphDatesRead(clean(getField(row, "Dates Read")));
 
-    const entries: NormalizedEntry[] =
-      periods.length > 0
-        ? periods.map((period, i) => ({
-            status: period.end ? "finished" : "reading",
-            isReread: i > 0,
-            startDate: period.start,
-            endDate: period.end,
-            rating: i === periods.length - 1 && period.end ? rating : null,
-            notes: i === periods.length - 1 && period.end ? notes : null,
-          }))
-        : [
-            {
-              status: readStatus,
-              isReread: false,
-              startDate: readStatus === "tbr" ? null : dateAdded,
-              endDate: readStatus === "finished" ? dateAdded : null,
-              rating: readStatus === "finished" ? rating : null,
-              notes: readStatus === "finished" ? notes : null,
-            },
-          ];
+    let entries: NormalizedEntry[];
+
+    if (status === "finished" && periods.length > 0) {
+      // Multiple comma-separated periods = past re-reads; only the most recent gets the rating/review.
+      entries = periods.map((period, i) => ({
+        status: "finished",
+        isReread: i > 0,
+        startDate: period.start,
+        endDate: period.end ?? period.start,
+        rating: i === periods.length - 1 ? rating : null,
+        notes: i === periods.length - 1 ? notes : null,
+      }));
+    } else if (status === "finished") {
+      const finishDate = lastDateRead ?? dateAdded;
+      entries = [{ status: "finished", isReread: false, startDate: finishDate, endDate: finishDate, rating, notes }];
+    } else if (status === "reading") {
+      entries = [{ status: "reading", isReread: false, startDate: periods[0]?.start ?? dateAdded, endDate: null, rating: null, notes: null }];
+    } else if (status === "dnf") {
+      const stopDate = periods[0]?.end ?? lastDateRead ?? dateAdded;
+      entries = [{ status: "dnf", isReread: false, startDate: periods[0]?.start ?? dateAdded, endDate: stopDate, rating: null, notes }];
+    } else {
+      entries = [{ status: "tbr", isReread: false, startDate: null, endDate: null, rating: null, notes: null }];
+    }
 
     books.push({ title, author, isbn, totalPages: null, genre, entries });
   }
@@ -184,12 +209,11 @@ function parseStoryGraph(records: Row[]): NormalizedBook[] {
 
 export function parseLibraryCsv(text: string): { books: NormalizedBook[]; source: "goodreads" | "storygraph" } {
   const records = parse(text, { columns: true, skip_empty_lines: true, trim: true, relax_column_count: true }) as Row[];
-  const headers = detectHeaders(records);
 
-  if (headers.includes("Exclusive Shelf")) {
+  if (hasHeader(records, "Exclusive Shelf")) {
     return { books: parseGoodreads(records), source: "goodreads" };
   }
-  if (headers.includes("Read Status")) {
+  if (hasHeader(records, "Read Status")) {
     return { books: parseStoryGraph(records), source: "storygraph" };
   }
   throw new Error("Unrecognized CSV format — expected a Goodreads or StoryGraph library export.");
