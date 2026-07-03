@@ -18,13 +18,6 @@ export const readStatusEnum = pgEnum("read_status", [
   "dnf",
 ]);
 
-export const series = pgTable("series", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  userId: text("user_id").notNull(),
-  name: text("name").notNull(),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
-});
-
 export const books = pgTable("books", {
   id: uuid("id").primaryKey().defaultRandom(),
   userId: text("user_id").notNull(),
@@ -34,10 +27,6 @@ export const books = pgTable("books", {
   genre: text("genre"),
   coverUrl: text("cover_url"),
   isbn: text("isbn"),
-  seriesId: uuid("series_id").references(() => series.id, {
-    onDelete: "set null",
-  }),
-  seriesIndex: real("series_index"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
@@ -67,15 +56,7 @@ export const settings = pgTable("settings", {
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 
-export const seriesRelations = relations(series, ({ many }) => ({
-  books: many(books),
-}));
-
-export const booksRelations = relations(books, ({ one, many }) => ({
-  series: one(series, {
-    fields: [books.seriesId],
-    references: [series.id],
-  }),
+export const booksRelations = relations(books, ({ many }) => ({
   readEntries: many(readEntries),
 }));
 
@@ -86,7 +67,6 @@ export const readEntriesRelations = relations(readEntries, ({ one }) => ({
   }),
 }));
 
-export type Series = typeof series.$inferSelect;
 export type Book = typeof books.$inferSelect;
 export type ReadEntry = typeof readEntries.$inferSelect;
 export type Settings = typeof settings.$inferSelect;

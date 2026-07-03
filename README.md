@@ -6,14 +6,16 @@ every device you open that URL from.
 
 ## Features
 
-- **Library**: track books as To Be Read, Currently Reading, Finished, or DNF.
+- **Library**: track books as To Be Read, Currently Reading, Finished, or DNF —
+  shown as a cover-art grid, with a count next to each status filter. Covers are
+  fetched automatically from Open Library by ISBN; books without one (or without
+  a match) get a colorful genre-tinted placeholder instead.
 - **Finished books**: star rating, notes/review, start & end date stamps (no
   per-book time tracking — just the dates, like StoryGraph/Goodreads).
 - **Currently reading**: live page-progress tracker with a pace estimate —
   finish-date projections computed by simulating your reading week (default:
   1h/weekday, 3h/weekend day, configurable in Settings) split across everything
   you're reading at once.
-- **Series tracking**: group books into a series, see `x / y read` progress.
 - **Re-read tracking**: "Read it again" starts a brand new read entry for a book
   without touching the history of your earlier read(s).
 - **Yearly goals**: set a books-per-year target, see progress vs. how far the
@@ -71,21 +73,21 @@ device that opens the URL sees the same library — that's what makes it sync.
 
 ## Data model
 
-- `books` — title, author, page count, genre, optional series + position.
+- `books` — title, author, page count, genre, ISBN.
 - `read_entries` — one row per *read* of a book (status: tbr / reading /
   finished / dnf; start/end dates; rating; notes; current page while reading).
   A book can have multiple entries over time — that's how re-reads are tracked
   without losing the original read's rating/notes/dates.
-- `series` — just a name; books reference it optionally.
 - `settings` — a single row: reading speed (pages/hour), weekday/weekend
   reading hours, and the yearly goal. Drives the pace and goal calculators.
 
 ### Multi-user readiness (not active yet)
 
-There's no login. `books`, `series`, and `settings` all carry a `user_id`
-column, but every row is currently stamped with a single fixed id
-(`src/lib/user.ts`). This means adding real accounts later is mostly a matter
-of replacing `getCurrentUserId()` with a real session lookup — the schema and
-every query/action already scope by user id.
+There's no login. `books` and `settings` both carry a `user_id` column, but
+every row is currently stamped with a single fixed id (`src/lib/user.ts`).
+This means adding real accounts later is mostly a matter of replacing
+`getCurrentUserId()` with a real session lookup — the schema and every
+query/action already scope by user id.
 
-`books.isbn` is used by the CSV import above to detect duplicates.
+`books.isbn` is used both to fetch a cover image (via Open Library) and by the
+CSV import above to detect duplicates.

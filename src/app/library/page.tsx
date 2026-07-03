@@ -27,6 +27,15 @@ export default async function LibraryPage({
   const { status = "all", q = "" } = await searchParams;
   const books = await getAllBooksWithEntries();
 
+  const statuses = books.map((book) => latestStatus(book.readEntries));
+  const counts = {
+    all: books.length,
+    tbr: statuses.filter((s) => s === "tbr").length,
+    reading: statuses.filter((s) => s === "reading").length,
+    finished: statuses.filter((s) => s === "finished").length,
+    dnf: statuses.filter((s) => s === "dnf").length,
+  };
+
   const filtered = books.filter((book) => {
     const matchesStatus = status === "all" || latestStatus(book.readEntries) === status;
     const query = q.trim().toLowerCase();
@@ -38,15 +47,15 @@ export default async function LibraryPage({
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-wrap items-center justify-between gap-4">
-        <h1 className="text-2xl font-semibold">Library</h1>
+        <h1 className="font-display text-2xl font-semibold">Library</h1>
         <div className="flex gap-2">
           <Link
             href="/library/import"
-            className="rounded-md border border-black/15 px-3 py-2 text-sm font-medium dark:border-white/20"
+            className="rounded-md border border-border px-3 py-2 text-sm font-medium "
           >
             Import CSV
           </Link>
-          <Link href="/library/new" className="rounded-md bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-500">
+          <Link href="/library/new" className="rounded-md bg-accent px-3 py-2 text-sm font-medium text-accent-foreground hover:bg-accent-hover">
             + Add book
           </Link>
         </div>
@@ -59,9 +68,9 @@ export default async function LibraryPage({
           name="q"
           defaultValue={q}
           placeholder="Search title or author…"
-          className="rounded-md border border-black/15 bg-transparent px-3 py-2 text-sm dark:border-white/20"
+          className="rounded-md border border-border bg-transparent px-3 py-2 text-sm "
         />
-        <button type="submit" className="rounded-md border border-black/15 px-3 py-2 text-sm dark:border-white/20">
+        <button type="submit" className="rounded-md border border-border px-3 py-2 text-sm ">
           Search
         </button>
       </form>
@@ -73,19 +82,19 @@ export default async function LibraryPage({
             href={`/library?status=${tab.value}${q ? `&q=${encodeURIComponent(q)}` : ""}`}
             className={`rounded-full px-3 py-1.5 text-sm ${
               status === tab.value
-                ? "bg-blue-600 text-white"
-                : "bg-black/5 text-black/70 hover:bg-black/10 dark:bg-white/10 dark:text-white/70 dark:hover:bg-white/15"
+                ? "bg-accent text-accent-foreground"
+                : "bg-surface text-muted hover:bg-surface-hover hover:text-foreground"
             }`}
           >
-            {tab.label}
+            {tab.label} <span className="opacity-70">({counts[tab.value]})</span>
           </Link>
         ))}
       </div>
 
       {filtered.length === 0 ? (
-        <p className="text-black/60 dark:text-white/60">No books match this filter yet.</p>
+        <p className="text-muted ">No books match this filter yet.</p>
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
           {filtered.map((book) => (
             <BookCard key={book.id} book={book} />
           ))}

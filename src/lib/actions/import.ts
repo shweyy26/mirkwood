@@ -82,7 +82,6 @@ export async function importLibrary(_prevState: ImportResult | null, formData: F
 
   revalidatePath("/");
   revalidatePath("/library");
-  revalidatePath("/series");
   revalidatePath("/goals");
   revalidatePath("/stats");
 

@@ -22,7 +22,6 @@ function num(fd: FormData, key: string): number | null {
 function revalidateAll() {
   revalidatePath("/");
   revalidatePath("/library");
-  revalidatePath("/series");
   revalidatePath("/goals");
   revalidatePath("/stats");
 }
@@ -34,8 +33,7 @@ export async function createBook(formData: FormData) {
 
   const totalPages = num(formData, "totalPages");
   const genre = str(formData, "genre");
-  const seriesId = str(formData, "seriesId");
-  const seriesIndex = num(formData, "seriesIndex");
+  const isbn = str(formData, "isbn");
   const initialStatus = (str(formData, "initialStatus") ?? "tbr") as
     | "tbr"
     | "reading"
@@ -48,7 +46,7 @@ export async function createBook(formData: FormData) {
 
   const [book] = await db
     .insert(books)
-    .values({ userId: getCurrentUserId(), title, author, totalPages, genre, seriesId, seriesIndex })
+    .values({ userId: getCurrentUserId(), title, author, totalPages, genre, isbn })
     .returning();
 
   await db.insert(readEntries).values({
@@ -77,8 +75,7 @@ export async function updateBook(id: string, formData: FormData) {
       author,
       totalPages: num(formData, "totalPages"),
       genre: str(formData, "genre"),
-      seriesId: str(formData, "seriesId"),
-      seriesIndex: num(formData, "seriesIndex"),
+      isbn: str(formData, "isbn"),
       updatedAt: new Date(),
     })
     .where(and(eq(books.id, id), eq(books.userId, getCurrentUserId())));

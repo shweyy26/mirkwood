@@ -41,8 +41,8 @@ export default async function StatsPage({
             href="/stats?year=all"
             className={`rounded-full px-3 py-1.5 text-sm ${
               selectedYear === "all"
-                ? "bg-blue-600 text-white"
-                : "bg-black/5 text-black/70 hover:bg-black/10 dark:bg-white/10 dark:text-white/70"
+                ? "bg-accent text-accent-foreground"
+                : "bg-surface text-muted hover:bg-surface-hover hover:text-foreground"
             }`}
           >
             All time
@@ -53,8 +53,8 @@ export default async function StatsPage({
               href={`/stats?year=${y}`}
               className={`rounded-full px-3 py-1.5 text-sm ${
                 selectedYear === y
-                  ? "bg-blue-600 text-white"
-                  : "bg-black/5 text-black/70 hover:bg-black/10 dark:bg-white/10 dark:text-white/70"
+                  ? "bg-accent text-accent-foreground"
+                  : "bg-surface text-muted hover:bg-surface-hover hover:text-foreground"
               }`}
             >
               {y}
@@ -64,20 +64,20 @@ export default async function StatsPage({
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
-        <div className="rounded-lg border border-black/10 p-6 text-center dark:border-white/10">
+        <div className="rounded-lg border border-border p-6 text-center ">
           <p className="text-3xl font-semibold">{totalBooks}</p>
-          <p className="text-sm text-black/60 dark:text-white/60">Books finished</p>
+          <p className="text-sm text-muted ">Books finished</p>
         </div>
-        <div className="rounded-lg border border-black/10 p-6 text-center dark:border-white/10">
+        <div className="rounded-lg border border-border p-6 text-center ">
           <p className="text-3xl font-semibold">{totalPages.toLocaleString()}</p>
-          <p className="text-sm text-black/60 dark:text-white/60">Total pages</p>
+          <p className="text-sm text-muted ">Total pages</p>
         </div>
       </div>
 
       <section className="flex flex-col gap-3">
         <h2 className="text-lg font-medium">By genre</h2>
         {genreRows.length === 0 ? (
-          <p className="text-sm text-black/60 dark:text-white/60">No finished books yet.</p>
+          <p className="text-sm text-muted ">No finished books yet.</p>
         ) : (
           <div className="flex flex-col gap-2">
             {genreRows.map(([genre, data]) => {
@@ -86,13 +86,13 @@ export default async function StatsPage({
               return (
                 <div key={genre} className="flex items-center gap-3">
                   <span className="w-28 shrink-0 truncate text-sm">{genre}</span>
-                  <div className="h-4 flex-1 overflow-hidden rounded-full bg-black/5 dark:bg-white/10">
+                  <div className="h-4 flex-1 overflow-hidden rounded-full bg-surface">
                     <div
                       className="h-full rounded-full"
                       style={{ width: `${widthPct}%`, backgroundColor: color.dot }}
                     />
                   </div>
-                  <span className="w-16 shrink-0 text-right text-sm text-black/60 dark:text-white/60">
+                  <span className="w-16 shrink-0 text-right text-sm text-muted ">
                     {data.count} book{data.count === 1 ? "" : "s"}
                   </span>
                 </div>

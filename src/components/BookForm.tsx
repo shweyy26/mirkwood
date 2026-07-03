@@ -1,21 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import type { Series } from "@/db/schema";
 import { StarRatingInput } from "./StarRating";
 import { todayString } from "@/lib/format";
 
 const inputClass =
-  "w-full rounded-md border border-black/15 bg-transparent px-3 py-2 text-sm dark:border-white/20";
+  "w-full rounded-md border border-border bg-transparent px-3 py-2 text-sm ";
 const labelClass = "block text-sm font-medium mb-1";
 
-export function BookForm({
-  seriesList,
-  action,
-}: {
-  seriesList: Series[];
-  action: (formData: FormData) => void;
-}) {
+export function BookForm({ action }: { action: (formData: FormData) => void }) {
   const [status, setStatus] = useState<"tbr" | "reading" | "finished">("tbr");
 
   return (
@@ -45,28 +38,15 @@ export function BookForm({
           </label>
           <input id="genre" name="genre" className={inputClass} placeholder="Fantasy" />
         </div>
-        <div>
-          <label className={labelClass} htmlFor="seriesId">
-            Series (optional)
+        <div className="sm:col-span-2">
+          <label className={labelClass} htmlFor="isbn">
+            ISBN <span className="font-normal text-muted">(optional — used to fetch a cover image)</span>
           </label>
-          <select id="seriesId" name="seriesId" className={inputClass} defaultValue="">
-            <option value="">None</option>
-            {seriesList.map((s) => (
-              <option key={s.id} value={s.id}>
-                {s.name}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div>
-          <label className={labelClass} htmlFor="seriesIndex">
-            Book # in series
-          </label>
-          <input type="number" step="0.5" min={0} id="seriesIndex" name="seriesIndex" className={inputClass} />
+          <input id="isbn" name="isbn" className={inputClass} placeholder="9780765326355" />
         </div>
       </div>
 
-      <fieldset className="rounded-md border border-black/15 p-4 dark:border-white/20">
+      <fieldset className="rounded-md border border-border p-4 ">
         <legend className="px-1 text-sm font-medium">Status</legend>
         <div className="flex flex-wrap gap-4 text-sm">
           {(
@@ -136,7 +116,7 @@ export function BookForm({
 
       <button
         type="submit"
-        className="self-start rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-500"
+        className="self-start rounded-md bg-accent px-4 py-2 text-sm font-medium text-accent-foreground hover:bg-accent-hover"
       >
         Add book
       </button>

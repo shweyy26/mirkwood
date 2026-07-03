@@ -4,7 +4,7 @@ import { updateSettings } from "@/lib/actions/settings";
 export const dynamic = "force-dynamic";
 
 const inputClass =
-  "w-full rounded-md border border-black/15 bg-transparent px-3 py-2 text-sm dark:border-white/20";
+  "w-full rounded-md border border-border bg-transparent px-3 py-2 text-sm ";
 const labelClass = "block text-sm font-medium mb-1";
 
 export default async function SettingsPage() {
@@ -13,7 +13,7 @@ export default async function SettingsPage() {
   return (
     <div className="flex flex-col gap-6 max-w-md">
       <h1 className="text-2xl font-semibold">Settings</h1>
-      <p className="text-sm text-black/60 dark:text-white/60">
+      <p className="text-sm text-muted ">
         These numbers drive the pace estimates on the Dashboard and Goals pages.
       </p>
 
@@ -74,7 +74,7 @@ export default async function SettingsPage() {
         </div>
         <button
           type="submit"
-          className="self-start rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-500"
+          className="self-start rounded-md bg-accent px-4 py-2 text-sm font-medium text-accent-foreground hover:bg-accent-hover"
         >
           Save settings
         </button>
