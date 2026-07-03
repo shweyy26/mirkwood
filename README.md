@@ -21,6 +21,10 @@ every device you open that URL from.
   reading pace into a sane target.
 - **Stats**: books finished, total pages, genre breakdown (color-coded), all-time
   or by year.
+- **CSV import**: upload a Goodreads or StoryGraph library export (`/library/import`,
+  format auto-detected) to bulk-add books. Books already in your library (matched
+  by ISBN, or title + author) are skipped. StoryGraph's "Dates Read" field is
+  parsed into separate read entries, so past re-reads come in with real dates.
 
 ## Tech stack
 
@@ -84,5 +88,4 @@ column, but every row is currently stamped with a single fixed id
 of replacing `getCurrentUserId()` with a real session lookup — the schema and
 every query/action already scope by user id.
 
-`books.isbn` is also there but unused for now, to leave room for importing an
-existing library from a Goodreads/StoryGraph CSV export later.
+`books.isbn` is used by the CSV import above to detect duplicates.
